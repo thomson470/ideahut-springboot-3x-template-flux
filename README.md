@@ -4,6 +4,6 @@
 - Dokumen dapat dilihat di [Ideahut Springboot](https://github.com/ideahut-apps-team/ideahut-springboot-docs/)
 
 ### Admin
-`URL`  : https://localhost:5401/_
-`User` : admin
-`Pass` : password
+- `URL`  : (https://localhost:5401/_)
+- `User` : admin
+- `Pass` : password
