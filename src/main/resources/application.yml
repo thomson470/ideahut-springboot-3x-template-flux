@@ -11,7 +11,7 @@ management:
 
 spring:
    application:
-      name: ideahut-springboot-3x-sample-flux
+      name: ideahut-springboot-3x-template-flux
    quartz:
       auto-startup: false
    servlet:
@@ -58,7 +58,7 @@ spring:
             audit_bean_name: auditSessionFactory_1
 
 app:
-   instanceId: ideahut-springboot-3x-sample-flux
+   instanceId: ideahut-springboot-3x-template-flux
    loggingError: true
    gridLocation: "file:{user.dir}/extras/grid/**/*.json"
    messagePath: "file:{user.dir}/extras/message/"
@@ -112,7 +112,7 @@ app:
          standalone:
             host: 127.0.0.1
             port: 6379
-            password: "a3213c419771fbd1a05cdde7127e6393ef852db97328b21a45de700e9bbe85db"
+            password: "<password>"
             database: 0
             
    cache:
@@ -129,8 +129,8 @@ app:
    mail:
       host: smtp.gmail.com
       port: 587
-      username: "socrates.apps.team@gmail.com"
-      password: "csbyvmyazduwlamw"
+      username: "<username>"
+      password: "<password>"
       properties:
          "mail.smtp.host": "smtp.gmail.com"
          "mail.smtp.ssl.trust": "smtp.gmail.com"
@@ -153,8 +153,8 @@ other:
          datasource:
             driver-class-name: com.mysql.cj.jdbc.Driver
             jdbc-url: jdbc:mysql://localhost:3306/springboot_sample_2?createDatabaseIfNotExist=true&autoReconnect=true
-            username: root
-            password: a3213c419771fbd1a05cdde7127e6393ef852db97328b21a45de700e9bbe85db  
+            username: "<username>"
+            password: "<password>"  
          jpa:
             properties:
                hibernate:
@@ -168,8 +168,8 @@ other:
             datasource:
                driver-class-name: com.mysql.cj.jdbc.Driver
                jdbc-url: jdbc:mysql://localhost:3306/__audit_springboot_sample_2?createDatabaseIfNotExist=true&autoReconnect=true
-               username: root
-               password: a3213c419771fbd1a05cdde7127e6393ef852db97328b21a45de700e9bbe85db  
+               username: "<username>"
+               password: "<password>"  
             jpa:
                properties:
                   hibernate:
@@ -185,7 +185,8 @@ other:
                   index: false 
              
 logging:
-   file: logs/ideahut-springboot-3x-template.log
+   file:
+      name: "./logs/ideahut-springboot-3x-template-flux.log"
    pattern:
       console: '%d %p [%X{traceId}] %F\(%M:%L\) : %msg%n'
       file: '%d %p [%X{traceId}] %F\(%M:%L\) : %msg%n'
