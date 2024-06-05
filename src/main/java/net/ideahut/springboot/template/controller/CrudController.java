@@ -19,20 +19,26 @@ import net.ideahut.springboot.crud.CrudAction;
 import net.ideahut.springboot.crud.CrudHandler;
 import net.ideahut.springboot.crud.CrudPermission;
 import net.ideahut.springboot.object.Result;
-import net.ideahut.springboot.util.ReactiveUtil;
+import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
+@Public
 @ComponentScan
 @RestController
 @RequestMapping("/crud")
-class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController {
+class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
+	
+	private final CrudHandler handler;
+	private final CrudPermission permission;
 	
 	@Autowired
-	private CrudHandler handler;
-	
-	@Autowired
-	private CrudPermission permission;
-	
+	CrudController(
+		CrudHandler handler, 
+		CrudPermission permission
+	) {
+		this.handler = handler;
+		this.permission = permission;
+	}
 	
 	@Override
 	protected CrudHandler handler() {
@@ -65,7 +71,6 @@ class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController 
 		@PathVariable("action") String action,
 		ServerHttpRequest request
 	) throws Exception {
-		
 		return DataBufferUtils
 		.join(request.getBody())
 		.flatMap(dataBuffer -> {
@@ -103,6 +108,7 @@ class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController 
 	/*
 	 * OBJECT (CrudAction.SINGLE)
 	 */
+	@Override
 	@GetMapping(value = "/rest/{name}/{id}")
 	protected Result object(
 		@PathVariable("name") String name, 
@@ -145,7 +151,7 @@ class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController 
 		ServerHttpRequest request
 	) {
 		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
-			byte[] data = ReactiveUtil.getDataBufferAsBytes(dataBuffer);
+			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			Result result = super.create(manager, name, value, data);
 			return Mono.just(result);
 		});
@@ -165,7 +171,7 @@ class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController 
 		ServerHttpRequest request
 	) {
 		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
-			byte[] data = ReactiveUtil.getDataBufferAsBytes(dataBuffer);
+			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			Result result = super.update(manager, name, id, value, data);
 			return Mono.just(result);
 		});
@@ -177,6 +183,7 @@ class CrudController extends net.ideahut.springboot.crud.ReactiveCrudController 
 	/*
 	 * DELETE 
 	 */
+	@Override
 	@DeleteMapping(value = "/rest/{name}/{id}")
 	protected Result delete(
 		@PathVariable("name") String name,

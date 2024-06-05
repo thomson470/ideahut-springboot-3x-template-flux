@@ -58,9 +58,7 @@ spring:
             audit_bean_name: auditSessionFactory_1
 
 app:
-   instanceId: ideahut-springboot-3x-template
    loggingError: true
-   gridLocation: "file:{user.dir}/extras/grid/**/*.json"
    messagePath: "file:{user.dir}/extras/message/"
    reportPath: "file:{user.dir}/extras/report/"
    
@@ -141,7 +139,10 @@ app:
          "mail.transport.protocol": "smtp"
          "mail.debug": "true"
          "mail.smtp.ssl.protocols": "TLSv1.2"
-
+   grid:
+      location: "file:{user.dir}/extras/grid/**/*.json"
+      #definition: "file:{user.dir}/extras/grid/grid.def"
+      
    admin:
       configFile: "file:{user.dir}/extras/admin/config.json"
       credentialFile: "file:{user.dir}/extras/admin/credential-bcrypt.json"
@@ -154,7 +155,7 @@ other:
             driver-class-name: com.mysql.cj.jdbc.Driver
             jdbc-url: jdbc:mysql://localhost:3306/springboot_sample_2?createDatabaseIfNotExist=true&autoReconnect=true
             username: "<username>"
-            password: "<password>"  
+            password: "<password>"
          jpa:
             properties:
                hibernate:

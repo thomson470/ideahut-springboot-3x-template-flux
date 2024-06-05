@@ -11,17 +11,24 @@ import org.springframework.web.reactive.resource.VersionResourceResolver;
 
 import net.ideahut.springboot.admin.AdminHandler;
 import net.ideahut.springboot.admin.AdminProperties;
-import net.ideahut.springboot.config.BasicWebFluxConfig;
+import net.ideahut.springboot.config.WebFluxBasicConfig;
 import net.ideahut.springboot.mapper.DataMapper;
 
 @Configuration
 @EnableWebFlux
-class WebFluxConfig extends BasicWebFluxConfig {
+class WebFluxConfig extends WebFluxBasicConfig {
+	
+	private final DataMapper dataMapper;
+	private final AdminHandler adminHandler;
 	
 	@Autowired
-	private DataMapper dataMapper;
-	@Autowired
-	private AdminHandler adminHandler;
+	WebFluxConfig(
+		DataMapper dataMapper,
+		AdminHandler adminHandler
+	) {
+		this.dataMapper = dataMapper;
+		this.adminHandler = adminHandler;
+	}
 	
 	@Override
 	protected DataMapper dataMapper() {

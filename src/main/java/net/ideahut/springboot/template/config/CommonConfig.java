@@ -11,7 +11,7 @@ import net.ideahut.springboot.mapper.DataMapperImpl;
 
 @Configuration
 class CommonConfig {
-	
+
 	@Bean
 	protected DataMapper dataMapper() {
 		return new DataMapperImpl()

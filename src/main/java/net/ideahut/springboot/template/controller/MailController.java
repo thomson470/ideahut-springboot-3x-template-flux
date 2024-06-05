@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
-import net.ideahut.springboot.annotation.Reactive;
+import net.ideahut.springboot.annotation.Body;
 import net.ideahut.springboot.mail.MailHandler;
 import net.ideahut.springboot.mail.MailObject;
 import net.ideahut.springboot.mail.MailObject.Attachment;
@@ -28,8 +28,14 @@ import net.ideahut.springboot.object.Result;
 @RequestMapping("/mail")
 class MailController {
 
+	private final MailHandler mailHandler;
+	
 	@Autowired
-	private MailHandler mailHandler;
+	MailController(
+		MailHandler mailHandler	
+	) {
+		this.mailHandler = mailHandler;
+	}
 	
 	@Setter
 	@Getter
@@ -43,14 +49,13 @@ class MailController {
 		private MultipartFile attachment;
 	}
 	
-	@Reactive(response = false)
 	@PostMapping("/send/sync")
 	protected Result sendSync(@ModelAttribute Form form) throws Exception {
 		sendMail(form, false);
 		return Result.success();
 	}
 	
-	@Reactive(response = false)
+	@Body
 	@PostMapping("/send/async")
 	protected Result sendAsync(@ModelAttribute Form form) throws Exception {
 		sendMail(form, true);

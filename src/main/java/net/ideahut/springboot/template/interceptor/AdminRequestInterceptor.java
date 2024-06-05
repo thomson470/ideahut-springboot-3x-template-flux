@@ -2,6 +2,8 @@ package net.ideahut.springboot.template.interceptor;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -17,31 +19,37 @@ import org.springframework.web.server.ServerWebExchange;
 
 import net.ideahut.springboot.admin.AdminHandler;
 import net.ideahut.springboot.admin.AdminProperties;
-import net.ideahut.springboot.admin.ReactiveAdminSecurity;
+import net.ideahut.springboot.admin.WebFluxAdminSecurity;
 import net.ideahut.springboot.audit.AuditInfo;
-import net.ideahut.springboot.interceptor.ReactiveHandlerInterceptor;
+import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.object.MapStringObject;
-import net.ideahut.springboot.security.ReactiveSecurityAuthorization;
 import net.ideahut.springboot.security.SecurityCredential;
 import net.ideahut.springboot.security.SecurityUser;
+import net.ideahut.springboot.security.WebFluxSecurityAuthorization;
 import net.ideahut.springboot.template.AppConstants;
-import net.ideahut.springboot.util.ReactiveUtil;
+import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AdminRequestInterceptor implements ReactiveHandlerInterceptor, InitializingBean {
+public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, InitializingBean {
 
 	private Set<String> allowPaths;
 	private Set<String> skipPaths;
 
+	private final AdminHandler adminHandler;
+	private final WebFluxSecurityAuthorization adminSecurity;
+	private final SecurityCredential adminCredential;
+	
 	@Autowired
-	private AdminHandler adminHandler;
-	@Qualifier(AppConstants.Bean.Security.ADMIN)
-	@Autowired
-	private ReactiveSecurityAuthorization adminSecurity;
-	@Qualifier(AppConstants.Bean.Credential.ADMIN)
-	@Autowired
-	private SecurityCredential adminCredential;
+	AdminRequestInterceptor(
+		AdminHandler adminHandler,
+		@Qualifier(AppConstants.Bean.Security.ADMIN) WebFluxSecurityAuthorization adminSecurity,
+		@Qualifier(AppConstants.Bean.Credential.ADMIN) SecurityCredential adminCredential
+	) {
+		this.adminHandler = adminHandler;
+		this.adminSecurity = adminSecurity;
+		this.adminCredential = adminCredential;
+	}
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -72,8 +80,8 @@ public class AdminRequestInterceptor implements ReactiveHandlerInterceptor, Init
 		if (handler == null) {
 			ServerHttpRequest request = exchange.getRequest();
 			String path = request.getPath().pathWithinApplication().value();
-			String query = ReactiveUtil.queryString(request.getQueryParams());
-			String redirect = adminHandler.getRedirect(path, query);
+			Map<String, List<String>> parameters = WebFluxUtil.getRequestParameters(request);
+			String redirect = adminHandler.getRedirect(adminCredential, path, parameters, null);
 			if (redirect != null) {
 				ServerHttpResponse response = exchange.getResponse();
 				response.getHeaders().set(HttpHeaders.LOCATION, redirect);
@@ -81,7 +89,7 @@ public class AdminRequestInterceptor implements ReactiveHandlerInterceptor, Init
 				return Mono.empty();
 			}
 		} else if (handler instanceof HandlerMethod) {
-			String key = adminSecurity instanceof ReactiveAdminSecurity ? ((ReactiveAdminSecurity) adminSecurity).getHeaderKey() : HttpHeaders.AUTHORIZATION;
+			String key = adminSecurity instanceof WebFluxAdminSecurity ? ((WebFluxAdminSecurity) adminSecurity).getHeaderKey() : HttpHeaders.AUTHORIZATION;
 			SecurityUser user = adminCredential.getSecurityUser(
 				new MapStringObject().put(
 					SecurityUser.Parameter.AUTHORIZATION, 
