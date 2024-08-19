@@ -36,7 +36,7 @@ public class ReloadController {
 	}
 	
 	@GetMapping("/options")
-	public Result options() {
+	Result options() {
 		Set<JsonNode> reloads = new HashSet<>();
 		if (adminHandler != null) {
 			Set<String> names = adminHandler.reload();
@@ -54,7 +54,7 @@ public class ReloadController {
 	}
 	
 	@PostMapping("/{name}")
-	public Result reload(
+	Result reload(
 		@PathVariable("name") String name
 	) throws Exception {
 		if (adminHandler != null) {

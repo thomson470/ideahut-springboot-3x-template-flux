@@ -57,7 +57,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	 */
 	@Public
 	@GetMapping(value = "/info/constant")
-	protected Result infoConstant() {
+	Result infoConstant() {
 		return super.constant();
 	}	
 	
@@ -67,7 +67,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	 * BODY ACTION
 	 */
 	@PostMapping(value = "/action/{action}")
-	protected Mono<Result> action(
+	Mono<Result> action(
 		@PathVariable("action") String action,
 		ServerHttpRequest request
 	) throws Exception {
@@ -96,7 +96,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 			RequestMethod.DELETE 
 		}
 	)
-	protected Result parameter(
+	Result parameter(
 		@PathVariable("action") String action,
 		ServerHttpRequest request
 	) throws Exception {
@@ -124,7 +124,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	 * COLLECTION (CrudAction.PAGE)
 	 */
 	@GetMapping(value = "/rest/{name}/{index}/{size}")
-	protected Result collection(
+	Result collection(
 		@PathVariable("name") String name, 
 		@PathVariable("index") Integer index, 
 		@PathVariable("size") Integer size,
@@ -144,7 +144,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	 * CREATE
 	 */
 	@PostMapping(value = "/rest/{name}")
-	protected Mono<Result> create(
+	Mono<Result> create(
 		@PathVariable("name") String name,
 		@RequestParam(value = "manager", required = false) String manager,
 		@RequestParam(value = "value", required = false) String value,
@@ -163,7 +163,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	 * UPDATE
 	 */
 	@PutMapping(value = "/rest/{name}/{id}")
-	protected Mono<Result> update(
+	Mono<Result> update(
 		@PathVariable("name") String name,
 		@PathVariable("id") String id,
 		@RequestParam(value = "manager", required = false) String manager,

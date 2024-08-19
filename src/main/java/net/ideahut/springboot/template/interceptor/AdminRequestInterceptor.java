@@ -89,9 +89,9 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 				return Mono.empty();
 			}
 		} else if (handler instanceof HandlerMethod) {
-			String key = adminSecurity instanceof WebFluxAdminSecurity ? ((WebFluxAdminSecurity) adminSecurity).getHeaderKey() : HttpHeaders.AUTHORIZATION;
+			String key = adminSecurity instanceof WebFluxAdminSecurity wfas ? wfas.getHeaderKey() : HttpHeaders.AUTHORIZATION;
 			SecurityUser user = adminCredential.getSecurityUser(
-				new MapStringObject().put(
+				new MapStringObject().setValue(
 					SecurityUser.Parameter.AUTHORIZATION, 
 					exchange.getRequest().getHeaders().getFirst(key)
 				)

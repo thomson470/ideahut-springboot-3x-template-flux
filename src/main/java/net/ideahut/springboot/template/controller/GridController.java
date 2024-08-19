@@ -30,7 +30,7 @@ class GridController {
 
 	@Public
 	@GetMapping
-	protected Result get(
+	Result get(
 		@RequestParam("name") String name,
 		@RequestParam("parent") String parent
 	) {

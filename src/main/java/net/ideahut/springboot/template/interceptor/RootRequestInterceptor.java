@@ -6,21 +6,23 @@ import java.util.Set;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ServerWebExchange;
 
 import net.ideahut.springboot.admin.AdminHandler;
 import net.ideahut.springboot.admin.AdminProperties;
-import net.ideahut.springboot.annotation.Public;
 import net.ideahut.springboot.api.ApiAccess;
-import net.ideahut.springboot.api.ApiHandler;
-import net.ideahut.springboot.api.WebFluxApiValidator;
+import net.ideahut.springboot.api.ApiUser;
+import net.ideahut.springboot.api.WebFluxApiService;
+import net.ideahut.springboot.audit.AuditInfo;
 import net.ideahut.springboot.context.RequestContext;
 import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.mapper.DataMapper;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.template.AppConstants;
+import net.ideahut.springboot.template.Application;
 import net.ideahut.springboot.util.FrameworkUtil;
 import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
@@ -31,25 +33,25 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	private Set<String> allowPaths;
 	private Set<String> skipPaths;
 	
-	// set true jika ingin mengecek berdasarkan RequestPermission
-	private boolean isCheckRequestEnabled = false;
-
 	private final DataMapper dataMapper;
 	private final AdminHandler adminHandler;
-	private final ApiHandler apiHandler;
-	private final WebFluxApiValidator apiValidator;
+	private final WebFluxApiService apiService;
+	
+	
+	// set false, agar ApiService tidak melakukan pengecekan (development)
+	// default ApiAccess Role = PUBLIC
+	private static final boolean isApiSerciveCheck = false;
+	private static final boolean isAllowAllRequest = true;
 	
 	@Autowired
 	RootRequestInterceptor(
 		DataMapper dataMapper,
 		AdminHandler adminHandler,
-		ApiHandler apiHandler,
-		WebFluxApiValidator apiValidator
+		WebFluxApiService apiService
 	) {
 		this.dataMapper = dataMapper;
 		this.adminHandler = adminHandler;
-		this.apiHandler = apiHandler;
-		this.apiValidator = apiValidator;
+		this.apiService = apiService;
 	}
 	
 	@Override
@@ -74,23 +76,43 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 
 	@Override
 	public Mono<Void> preHandle(ServerWebExchange exchange, Object handler) {
+		if (!Application.isReady()) {
+			exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
+			return null;
+		}
 		if (handler instanceof HandlerMethod hm) {
 			try {
-				Public anPublic = FrameworkUtil.getAnnotation(Public.class, hm);
-				boolean isPublic = anPublic != null && anPublic.value();
-				ApiAccess access = apiValidator.getApiAccess(exchange.getRequest(), isPublic);
-				if (access == null) {
-					access = new ApiAccess();
-					access.setRole(AppConstants.Default.API_ROLE);
-				}
-				if (!isPublic && isCheckRequestEnabled) {
-					boolean allowed = apiHandler.isRequestAllowed(access.getRole(), hm);
-					if (!allowed) {
-						throw FrameworkUtil.exception(Result.error("REQ-00", "Request is not allowed"));
+				boolean isPublic = FrameworkUtil.isPublic(hm);
+				ApiAccess apiAccess = null;
+				if (isApiSerciveCheck) {
+					apiAccess = apiService.getApiAccess(exchange.getRequest(), isPublic);
+					if (apiAccess == null) {
+						apiAccess = new ApiAccess();
+						apiAccess.setApiRole(AppConstants.Default.API_ROLE);
 					}
+					if (!isAllowAllRequest) {
+						if (!isPublic) {
+							boolean allowed = apiService.isApiRequestAllowed(apiAccess, hm);
+							if (!allowed) {
+								throw FrameworkUtil.exception(Result.error("REQ-00", "Request is not allowed"));
+							}
+						}
+					}
+				} else {
+					apiAccess = new ApiAccess();
+					apiAccess.setApiRole(AppConstants.Default.API_ROLE);
 				}
-				// implementasi untuk simpan access (bisa ke context atau redis), agar bisa dipanggil dari class lain.
-				RequestContext.currentContext().setAttribute(ApiAccess.CONTEXT, access);
+				String auditor = "";
+				if (Boolean.TRUE.equals(apiAccess.getIsConsumer())) {
+					auditor += "CONSUMER::" + apiAccess.getConsumerId();
+				}
+				auditor += "ROLE::" + apiAccess.getApiRole();
+				ApiUser apiUser = apiAccess.getApiUser();
+				if (apiUser != null) {
+					auditor += "USER::" + apiUser.getId() + "::" + apiUser.getUsername();
+				}
+				AuditInfo.context().setAuditor(auditor);
+				RequestContext.currentContext().setAttribute(ApiAccess.CONTEXT, apiAccess);
 			} catch (Exception e) {
 				Result result = FrameworkUtil.getErrorAsResult(e);
 				return WebFluxUtil.sendToClient(dataMapper, exchange, result);

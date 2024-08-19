@@ -4,13 +4,14 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import net.ideahut.springboot.api.ApiAccess;
 import net.ideahut.springboot.api.ApiAuth;
+import net.ideahut.springboot.api.ApiParameter;
 
 public interface AccessService {
 
-	ApiAuth login(ServerHttpRequest request, String username, String password);
+	ApiAuth login(ServerHttpRequest httpRequest, String username, String password) throws Exception;
 	
-	void logout();
+	ApiAccess logout();
 	
-	ApiAccess getApiAccess(String key);
+	ApiAccess info(ServerHttpRequest httpRequest, ApiParameter apiParameter);
 	
 }

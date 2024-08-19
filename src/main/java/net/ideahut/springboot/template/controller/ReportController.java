@@ -72,7 +72,7 @@ class ReportController implements InitializingBean {
 	
 	@Body
 	@GetMapping
-	protected ResponseEntity<Mono<Resource>> get(
+	ResponseEntity<Mono<Resource>> get(
 		@RequestParam("name") String name
 	) {
 		ReportType type = getType(name);

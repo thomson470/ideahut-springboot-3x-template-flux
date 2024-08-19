@@ -35,7 +35,7 @@ class MenuController {
 	}
 	
 	@GetMapping("list")
-	protected Result list() {
+	Result list() {
 		List<Menu> menus = new ArrayList<>();
 		menus.add(cache());
 		Menu grid = grid();

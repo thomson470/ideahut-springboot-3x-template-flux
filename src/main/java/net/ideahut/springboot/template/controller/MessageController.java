@@ -28,14 +28,14 @@ class MessageController {
 
 	@Public
 	@GetMapping(value = "/mobile")
-	protected Result mobile() {
+	Result mobile() {
 		JsonNode mobile = messageService.getResource("mobile");
 		return Result.success(mobile);
 	}
 	
 	@Public
 	@GetMapping(value = "/portal")
-	protected Result portal() {
+	Result portal() {
 		JsonNode portal = messageService.getResource("portal");
 		return Result.success(portal);
 	}

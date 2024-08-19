@@ -18,7 +18,7 @@ import net.ideahut.springboot.entity.TrxManagerInfo;
 import net.ideahut.springboot.exception.ResultRuntimeException;
 import net.ideahut.springboot.object.Page;
 import net.ideahut.springboot.object.Result;
-import net.ideahut.springboot.template.AppConstants;
+import net.ideahut.springboot.template.Application;
 import net.ideahut.springboot.util.FrameworkUtil;
 import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
@@ -44,9 +44,8 @@ class AuditController {
 		this.auditHandler = auditHandler;
 	}
 	
-	
 	@PostMapping(value = "/list")
-	protected Mono<Result> list(
+	Mono<Result> list(
 		ServerHttpRequest request
 	) {
 		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
@@ -69,7 +68,7 @@ class AuditController {
 					auditRequest.setClassOfEntity(classOfEntity);
 				} catch(Exception e1) {
 					try {
-						Class<?> type = FrameworkUtil.classOf(AppConstants.PACKAGE + ".entity." + entity);
+						Class<?> type = FrameworkUtil.classOf(Application.Package.APPLICATION + ".entity." + entity);
 						auditRequest.setClassOfEntity(type);	
 					} catch (Exception e2) {
 						throw new ResultRuntimeException(Result.error("AUDIT-02", "Entity is not found, for: " + entity));
@@ -83,7 +82,7 @@ class AuditController {
 	
 	
 	@GetMapping(value = "/bytes")
-	protected Result bytes(
+	Result bytes(
 		@RequestParam(name = "manager", required = false) String manager,
 		@RequestParam(name = "id") String id
 	) {

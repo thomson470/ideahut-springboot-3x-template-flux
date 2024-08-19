@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -30,6 +30,7 @@ import net.ideahut.springboot.mapper.DataMapper;
 import net.ideahut.springboot.message.MessageHandler;
 import net.ideahut.springboot.object.Message;
 import net.ideahut.springboot.object.Option;
+import net.ideahut.springboot.template.AppConstants;
 import net.ideahut.springboot.template.properties.AppProperties;
 import net.ideahut.springboot.util.FrameworkUtil;
 import net.ideahut.springboot.util.StringUtil;
@@ -53,20 +54,28 @@ public class MessageServiceImpl implements MessageService, BeanReload, BeanConfi
 		private static final String LANGUAGE_WORDS = PREFIX + "--LANGUAGE_WORDS--";
 	}
 	
-	@Autowired
-	private DataMapper dataMapper;
-	@Autowired
-	private RedisTemplate<String, byte[]> redisTemplate;
-	@Autowired
-	private AppProperties appProperties;
+	private final AppProperties appProperties;
+	private final DataMapper dataMapper;
+	private final RedisTemplate<String, byte[]> redisTemplate;
+	
+	MessageServiceImpl(
+		AppProperties appProperties,
+		DataMapper dataMapper,
+		@Qualifier(AppConstants.Bean.Redis.COMMON)
+		RedisTemplate<String, byte[]> redisTemplate
+	) {
+		this.appProperties = appProperties;
+		this.dataMapper = dataMapper;
+		this.redisTemplate = redisTemplate;
+	}
 	
 	@Override
-	public Callable<MessageService> configureBean(ApplicationContext applicationContext) {
+	public Callable<MessageService> onConfigureBean(ApplicationContext applicationContext) {
 		MessageServiceImpl self = this;
 		return new Callable<MessageService>() {
 			@Override
 			public MessageService call() throws Exception {
-				reloadBean();
+				onReloadBean();
 				return self;
 			}
 		};
@@ -78,7 +87,7 @@ public class MessageServiceImpl implements MessageService, BeanReload, BeanConfi
 	}
 	
 	@Override
-	public boolean reloadBean() throws Exception {
+	public boolean onReloadBean() throws Exception {
 		if (!lock(true)) {
 			return false;
 		}
