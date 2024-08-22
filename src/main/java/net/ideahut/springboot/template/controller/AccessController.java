@@ -49,4 +49,10 @@ class AccessController {
 		return accessService.info(request, null);
 	}
 	
+	@Public
+	@RequestMapping(value = "/token", method = {RequestMethod.GET, RequestMethod.POST})
+	String token(ServerHttpRequest request) {
+		return accessService.token(request);
+	}
+	
 }

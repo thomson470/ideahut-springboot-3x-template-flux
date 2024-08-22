@@ -14,4 +14,7 @@ public interface AccessService {
 	
 	ApiAccess info(ServerHttpRequest httpRequest, ApiParameter apiParameter);
 	
+	// consumer token
+	String token(ServerHttpRequest httpRequest);
+	
 }
