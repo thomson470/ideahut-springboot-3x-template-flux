@@ -18,6 +18,7 @@ import net.ideahut.springboot.annotation.Public;
 import net.ideahut.springboot.crud.CrudAction;
 import net.ideahut.springboot.crud.CrudHandler;
 import net.ideahut.springboot.crud.CrudPermission;
+import net.ideahut.springboot.crud.WebFluxCrudController;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
@@ -26,7 +27,7 @@ import reactor.core.publisher.Mono;
 @ComponentScan
 @RestController
 @RequestMapping("/crud")
-class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
+class CrudController extends WebFluxCrudController {
 	
 	private final CrudHandler handler;
 	private final CrudPermission permission;
@@ -74,9 +75,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		return DataBufferUtils
 		.join(request.getBody())
 		.flatMap(dataBuffer -> {
-			byte[] data = new byte[dataBuffer.readableByteCount()];
-			dataBuffer.read(data);
-			DataBufferUtils.release(dataBuffer);
+			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			Result result = super.body(CrudAction.valueOf(action.toUpperCase()), data);
 			return Mono.just(result);
 		});
@@ -149,8 +148,10 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		@RequestParam(value = "manager", required = false) String manager,
 		@RequestParam(value = "value", required = false) String value,
 		ServerHttpRequest request
-	) {
-		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
+	) throws Exception {
+		return DataBufferUtils
+		.join(request.getBody())
+		.flatMap(dataBuffer -> {
 			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			Result result = super.create(manager, name, value, data);
 			return Mono.just(result);
@@ -169,8 +170,10 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		@RequestParam(value = "manager", required = false) String manager,
 		@RequestParam(value = "value", required = false) String value,
 		ServerHttpRequest request
-	) {
-		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
+	) throws Exception {
+		return DataBufferUtils
+		.join(request.getBody())
+		.flatMap(dataBuffer -> {
 			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			Result result = super.update(manager, name, id, value, data);
 			return Mono.just(result);

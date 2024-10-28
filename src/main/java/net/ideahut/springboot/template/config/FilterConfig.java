@@ -23,7 +23,7 @@ class FilterConfig {
 		AdminRequestInterceptor adminRequestInterceptor
 	) {
 		return new WebFluxRequestFilter()
-		.setCorsHeaders(appProperties.getCors())
+		.setCORSHeaders(appProperties.getCors())
 		.setTraceEnable(true)
 		.setAllowPaths("/**")
 		.setHandlerMapping(requestMappingHandlerMapping)

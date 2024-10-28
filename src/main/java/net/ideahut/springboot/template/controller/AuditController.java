@@ -20,6 +20,7 @@ import net.ideahut.springboot.object.Page;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.template.Application;
 import net.ideahut.springboot.util.FrameworkUtil;
+import net.ideahut.springboot.util.ObjectUtil;
 import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
@@ -44,31 +45,26 @@ class AuditController {
 		this.auditHandler = auditHandler;
 	}
 	
+	
 	@PostMapping(value = "/list")
 	Mono<Result> list(
 		ServerHttpRequest request
-	) {
+	) throws Exception {
 		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
 			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
 			AuditRequest auditRequest = auditHandler.getRequest(data);
-			TrxManagerInfo trxManagerInfo;
-			String manager = auditRequest.getManager();
-			if (manager != null && !manager.isEmpty()) {
-				trxManagerInfo = entityTrxManager.getTrxManagerInfo(manager);
-			} else {
-				trxManagerInfo = entityTrxManager.getDefaultTrxManagerInfo();
-			}
+			TrxManagerInfo trxManagerInfo = FrameworkUtil.getTrxManagerInfo(entityTrxManager, auditRequest.getManager());
 			if (trxManagerInfo == null) {
-				throw new ResultRuntimeException(Result.error("AUDIT-01", "Unknown manager: " + manager));
+				throw new ResultRuntimeException(Result.error("AUDIT-01", "Unknown manager: " + auditRequest.getManager()));
 			}
 			String entity = auditRequest.getEntity();
 			if (entity != null && !entity.isEmpty() && auditRequest.getClassOfEntity() == null) {
 				try {
-					Class<?> classOfEntity = FrameworkUtil.classOf(entity);
+					Class<?> classOfEntity = ObjectUtil.classOf(entity);
 					auditRequest.setClassOfEntity(classOfEntity);
 				} catch(Exception e1) {
 					try {
-						Class<?> type = FrameworkUtil.classOf(Application.Package.APPLICATION + ".entity." + entity);
+						Class<?> type = ObjectUtil.classOf(Application.Package.APPLICATION + ".entity." + entity);
 						auditRequest.setClassOfEntity(type);	
 					} catch (Exception e2) {
 						throw new ResultRuntimeException(Result.error("AUDIT-02", "Entity is not found, for: " + entity));
@@ -78,6 +74,7 @@ class AuditController {
 			Page page = auditHandler.getList(auditRequest);
 			return Mono.just(Result.success(page));
 		});
+		
 	}
 	
 	

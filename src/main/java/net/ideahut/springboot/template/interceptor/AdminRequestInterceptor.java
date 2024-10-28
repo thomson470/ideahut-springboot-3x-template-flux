@@ -27,6 +27,7 @@ import net.ideahut.springboot.security.SecurityCredential;
 import net.ideahut.springboot.security.SecurityUser;
 import net.ideahut.springboot.security.WebFluxSecurityAuthorization;
 import net.ideahut.springboot.template.AppConstants;
+import net.ideahut.springboot.template.Application;
 import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
@@ -73,6 +74,10 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 
 	@Override
 	public Mono<Void> preHandle(ServerWebExchange exchange, Object handler) {
+		if (!Application.isReady()) {
+			exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
+			return null;
+		}
 		Mono<Void> mono = adminSecurity.isRequestAuthorized(exchange);
 		if (mono != null) {
 			return mono;

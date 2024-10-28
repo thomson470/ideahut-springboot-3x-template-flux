@@ -45,13 +45,17 @@ class AccessController {
 	}
 	
 	@RequestMapping(value = "/info", method = {RequestMethod.GET, RequestMethod.POST})
-	ApiAccess info(ServerHttpRequest request) {
+	ApiAccess info(
+		ServerHttpRequest request
+	) {
 		return accessService.info(request, null);
 	}
 	
 	@Public
 	@RequestMapping(value = "/token", method = {RequestMethod.GET, RequestMethod.POST})
-	String token(ServerHttpRequest request) {
+	String token(
+		ServerHttpRequest request
+	) {
 		return accessService.token(request);
 	}
 	

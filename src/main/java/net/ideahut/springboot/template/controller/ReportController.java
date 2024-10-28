@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.ideahut.springboot.annotation.Body;
 import net.ideahut.springboot.report.ReportHandler;
 import net.ideahut.springboot.report.ReportInput;
 import net.ideahut.springboot.report.ReportType;
@@ -49,6 +48,7 @@ class ReportController implements InitializingBean {
 	private byte[] imageHeader;
 	private byte[] imageDetail;
 	
+	
 	@Autowired
 	ReportController(
 		AppProperties appProperties,
@@ -65,12 +65,11 @@ class ReportController implements InitializingBean {
 		path = FrameworkUtil.replacePath(appProperties.getReportPath());
 		path = StringUtil.removeEnd(path, "/");
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
-		template = resolver.getResource(path + "/sample.jasper").getContentAsByteArray();
-		imageHeader = resolver.getResource(path + "/tree1.png").getContentAsByteArray();
-		imageDetail = resolver.getResource(path + "/tree2.png").getContentAsByteArray();
+		template = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/sample.jasper"));
+		imageHeader = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/tree1.png"));
+		imageDetail = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/tree2.png"));
 	}
 	
-	@Body
 	@GetMapping
 	ResponseEntity<Mono<Resource>> get(
 		@RequestParam("name") String name

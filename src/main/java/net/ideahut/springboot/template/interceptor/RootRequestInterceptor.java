@@ -18,6 +18,7 @@ import net.ideahut.springboot.api.ApiUser;
 import net.ideahut.springboot.api.WebFluxApiService;
 import net.ideahut.springboot.audit.AuditInfo;
 import net.ideahut.springboot.context.RequestContext;
+import net.ideahut.springboot.exception.ResultRuntimeException;
 import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.mapper.DataMapper;
 import net.ideahut.springboot.object.Result;
@@ -94,7 +95,7 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 						if (!isPublic) {
 							boolean allowed = apiService.isApiRequestAllowed(apiAccess, hm);
 							if (!allowed) {
-								throw FrameworkUtil.exception(Result.error("REQ-00", "Request is not allowed"));
+								throw ResultRuntimeException.of(Result.error("REQ-00", "Request is not allowed"));
 							}
 						}
 					}

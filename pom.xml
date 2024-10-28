@@ -57,13 +57,11 @@
         <maven.compiler.source>17</maven.compiler.source>
         <java.version>17</java.version>
 
-        <version.commons-io>2.15.1</version.commons-io>
+        <version.commons-io>2.17.0</version.commons-io>
         <version.jbcrypt>0.4</version.jbcrypt>
-        <version.jakarta.mail>2.0.1</version.jakarta.mail>
-        <version.jasperreports>6.21.0</version.jasperreports>
-		<version.jedis>5.0.2</version.jedis>
-		<version.jjwt>0.12.5</version.jjwt>
-		<version.apache-poi>5.2.5</version.apache-poi>
+        <version.jjwt>0.12.6</version.jjwt>
+        <version.jasperreports>6.21.4</version.jasperreports>
+		<version.apache-poi>5.3.0</version.apache-poi>
         
 	</properties>
 
@@ -74,11 +72,11 @@
 		<dependency>
 			<groupId>net.ideahut</groupId>
 			<artifactId>ideahut-springboot-3x</artifactId>
-			<version>3.1.0</version>
+			<version>3.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.ideahut</groupId>
-			<version>3.1.0</version>
+			<version>3.2.0</version>
 			<!--<artifactId>ideahut-springboot-3.1.6</artifactId>-->
 			<!--<artifactId>ideahut-springboot-3.2.1</artifactId>-->
 			<!--<artifactId>ideahut-springboot-3.2.2</artifactId>-->
@@ -102,13 +100,6 @@
         <dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
-		
-		
-		<!-- SERVLET -->
-		<dependency>
-			<groupId>jakarta.servlet</groupId>
-			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 
 
@@ -166,9 +157,8 @@
 
 		<!-- MAIL -->
 		<dependency>
-		    <groupId>com.sun.mail</groupId>
-		    <artifactId>jakarta.mail</artifactId>
-		    <version>${version.jakarta.mail}</version>
+		    <groupId>jakarta.mail</groupId>
+		    <artifactId>jakarta.mail-api</artifactId>
 		</dependency>
 
 

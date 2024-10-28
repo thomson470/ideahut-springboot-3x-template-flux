@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -30,7 +31,6 @@ import net.ideahut.springboot.mapper.DataMapper;
 import net.ideahut.springboot.message.MessageHandler;
 import net.ideahut.springboot.object.Message;
 import net.ideahut.springboot.object.Option;
-import net.ideahut.springboot.template.AppConstants;
 import net.ideahut.springboot.template.properties.AppProperties;
 import net.ideahut.springboot.util.FrameworkUtil;
 import net.ideahut.springboot.util.StringUtil;
@@ -54,20 +54,12 @@ public class MessageServiceImpl implements MessageService, BeanReload, BeanConfi
 		private static final String LANGUAGE_WORDS = PREFIX + "--LANGUAGE_WORDS--";
 	}
 	
-	private final AppProperties appProperties;
-	private final DataMapper dataMapper;
-	private final RedisTemplate<String, byte[]> redisTemplate;
-	
-	MessageServiceImpl(
-		AppProperties appProperties,
-		DataMapper dataMapper,
-		@Qualifier(AppConstants.Bean.Redis.COMMON)
-		RedisTemplate<String, byte[]> redisTemplate
-	) {
-		this.appProperties = appProperties;
-		this.dataMapper = dataMapper;
-		this.redisTemplate = redisTemplate;
-	}
+	@Autowired
+	private DataMapper dataMapper;
+	@Autowired
+	private RedisTemplate<String, byte[]> redisTemplate;
+	@Autowired
+	private AppProperties appProperties;
 	
 	@Override
 	public Callable<MessageService> onConfigureBean(ApplicationContext applicationContext) {
@@ -166,7 +158,7 @@ public class MessageServiceImpl implements MessageService, BeanReload, BeanConfi
 		Resource[] resources = resolver.getResources(path + "/" + type + "/*.json");
 		for (Resource resource : resources) {
 			String language = resource.getFilename().replace(".json", "");
-			byte[] bytes = resource.getContentAsByteArray();
+			byte[] bytes = IOUtils.toByteArray(resource.getInputStream());
 			String ckey = Keys.PREFIX + "-" + type + "-" + language;
 			// menvalidasi json
 			JsonNode node = dataMapper.read(bytes, JsonNode.class);

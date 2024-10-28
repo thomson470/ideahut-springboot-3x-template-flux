@@ -42,7 +42,7 @@ class CacheController {
 	CacheController(
 		AppProperties appProperties,
 		DataMapper dataMapper,
-		CacheGroupHandler cacheGroupHandler
+		CacheGroupHandler cacheGroupHandler	
 	) {
 		this.appProperties = appProperties;
 		this.dataMapper = dataMapper;
@@ -50,7 +50,7 @@ class CacheController {
 	}
 	
 	@GetMapping("/groups")
-	Result groups() {
+	ArrayNode groups() {
 		ArrayNode items = dataMapper.createArrayNode();
 		List<CacheGroupProperties> groups = appProperties.getCache().getGroups();
 		for (CacheGroupProperties group : groups) {
@@ -62,7 +62,7 @@ class CacheController {
 				item.put("size", size);
 			}
 		}
-		return Result.success(items);
+		return items;
 	}
 	
 	@GetMapping("/get")
@@ -88,36 +88,32 @@ class CacheController {
 	}
 	
 	@GetMapping("/size")
-	Result size(
+	Long size(
 		@RequestParam(value = "group", required = false) String group
 	) {
-		Long size = cacheGroupHandler.size(group(group));
-		return Result.success(size);
+		return cacheGroupHandler.size(group(group));
 	}
 	
 	@GetMapping("/keys")
-	Result keys(
+	List<String> keys(
 		@RequestParam(value = "group", required = false) String group
 	) {
-		List<String> keys = cacheGroupHandler.keys(group(group));
-		return Result.success(keys);
+		return cacheGroupHandler.keys(group(group));
 	}
 	
 	@DeleteMapping("/delete")
-	Result delete(
+	void delete(
 		@RequestParam(value = "group", required = false) String group,
 		@RequestParam("key") String key
 	) {
 		cacheGroupHandler.delete(group(group), key);
-		return Result.success();
 	}
 	
 	@DeleteMapping("/clear")
-	Result clear(
+	void clear(
 		@RequestParam(value = "group", required = false) String group
 	) {
 		cacheGroupHandler.clear(group(group));
-		return Result.success();
 	}
 	
 	private String group(String input) {
