@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ideahut.springboot.helper.FrameworkHelper;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.template.properties.AppProperties;
-import net.ideahut.springboot.util.FrameworkUtil;
 
 /*
  * 1. Untuk menghandle semua error yang terjadi di aplikasi
@@ -38,7 +38,7 @@ class AppAdvice {
 		if (Boolean.TRUE.equals(appProperties.getLoggingError())) {
     		log.error(AppAdvice.class.getSimpleName(), throwable);
     	}
-    	return FrameworkUtil.getErrorAsResult(throwable);
+    	return FrameworkHelper.getErrorAsResult(throwable);
     }
     
 }

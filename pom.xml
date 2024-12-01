@@ -45,7 +45,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.3</version>
+		<version>3.2.2</version>
 		<relativePath/>
 	</parent>
 
@@ -79,12 +79,16 @@
 			<version>3.2.0</version>
 			<!--<artifactId>ideahut-springboot-3.1.6</artifactId>-->
 			<!--<artifactId>ideahut-springboot-3.2.1</artifactId>-->
-			<!--<artifactId>ideahut-springboot-3.2.2</artifactId>-->
-			<artifactId>ideahut-springboot-3.2.3</artifactId>
+			<artifactId>ideahut-springboot-3.2.2</artifactId>
+			<!--<artifactId>ideahut-springboot-3.2.3</artifactId>-->
 		</dependency>
 
 
 		<!-- SPRINGBOOT -->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -97,9 +101,9 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-webflux</artifactId>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
 
@@ -119,6 +123,10 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.fasterxml.jackson.dataformat</groupId>
+		    <artifactId>jackson-dataformat-yaml</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

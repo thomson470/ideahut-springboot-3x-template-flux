@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.ideahut.springboot.helper.FrameworkHelper;
+import net.ideahut.springboot.helper.StringHelper;
 import net.ideahut.springboot.report.ReportHandler;
 import net.ideahut.springboot.report.ReportInput;
 import net.ideahut.springboot.report.ReportType;
 import net.ideahut.springboot.stream.ByteArrayInOutStream;
 import net.ideahut.springboot.template.object.ReportData;
 import net.ideahut.springboot.template.properties.AppProperties;
-import net.ideahut.springboot.util.FrameworkUtil;
-import net.ideahut.springboot.util.StringUtil;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.util.JRLoader;
 import reactor.core.publisher.Mono;
@@ -62,12 +62,12 @@ class ReportController implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		String path = appProperties.getReportPath();
 		Assert.hasLength(path, "AppProperties.reportPath is required");
-		path = FrameworkUtil.replacePath(appProperties.getReportPath());
-		path = StringUtil.removeEnd(path, "/");
+		path = FrameworkHelper.replacePath(appProperties.getReportPath());
+		path = StringHelper.removeEnd(path, "/");
 		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
-		template = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/sample.jasper"));
-		imageHeader = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/tree1.png"));
-		imageDetail = FrameworkUtil.getResourceAsByteArray(resolver.getResource(path + "/tree2.png"));
+		template = FrameworkHelper.getResourceAsByteArray(resolver.getResource(path + "/sample.jasper"));
+		imageHeader = FrameworkHelper.getResourceAsByteArray(resolver.getResource(path + "/tree1.png"));
+		imageDetail = FrameworkHelper.getResourceAsByteArray(resolver.getResource(path + "/tree2.png"));
 	}
 	
 	@GetMapping

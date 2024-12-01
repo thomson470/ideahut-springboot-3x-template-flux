@@ -10,7 +10,6 @@ import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.resource.VersionResourceResolver;
 
 import net.ideahut.springboot.admin.AdminHandler;
-import net.ideahut.springboot.admin.AdminProperties;
 import net.ideahut.springboot.config.WebFluxBasicConfig;
 import net.ideahut.springboot.mapper.DataMapper;
 
@@ -37,13 +36,14 @@ class WebFluxConfig extends WebFluxBasicConfig {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		AdminProperties.Resource resource = adminHandler.getProperties().getResource();
-		registry
-		.addResourceHandler(resource.getRequestPath() + "/**")
-		.addResourceLocations(resource.getLocations())
-		.setCacheControl(CacheControl.maxAge(60, TimeUnit.DAYS))
-        .resourceChain(false)
-        .addResolver(new VersionResourceResolver().addContentVersionStrategy(resource.getRequestPath() + "/**"));
+		if (adminHandler.isWebEnabled()) {
+			registry
+			.addResourceHandler(adminHandler.getWebPath() + "/**")
+			.addResourceLocations(adminHandler.getWebLocation())
+			.setCacheControl(CacheControl.maxAge(60, TimeUnit.DAYS))
+	        .resourceChain(false)
+	        .addResolver(new VersionResourceResolver().addContentVersionStrategy(adminHandler.getWebPath() + "/**"));
+		}
 		super.addResourceHandlers(registry);
 	}
 	

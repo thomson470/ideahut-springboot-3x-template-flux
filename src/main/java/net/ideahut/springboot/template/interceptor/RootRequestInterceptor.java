@@ -12,20 +12,20 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ServerWebExchange;
 
 import net.ideahut.springboot.admin.AdminHandler;
-import net.ideahut.springboot.admin.AdminProperties;
 import net.ideahut.springboot.api.ApiAccess;
 import net.ideahut.springboot.api.ApiUser;
 import net.ideahut.springboot.api.WebFluxApiService;
 import net.ideahut.springboot.audit.AuditInfo;
 import net.ideahut.springboot.context.RequestContext;
 import net.ideahut.springboot.exception.ResultRuntimeException;
+import net.ideahut.springboot.helper.FrameworkHelper;
+import net.ideahut.springboot.helper.ObjectHelper;
+import net.ideahut.springboot.helper.WebFluxHelper;
 import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.mapper.DataMapper;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.template.AppConstants;
 import net.ideahut.springboot.template.Application;
-import net.ideahut.springboot.util.FrameworkUtil;
-import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -41,8 +41,8 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	
 	// set false, agar ApiService tidak melakukan pengecekan (development)
 	// default ApiAccess Role = PUBLIC
-	private static final boolean isApiSerciveCheck = false;
-	private static final boolean isAllowAllRequest = true;
+	private static final boolean IS_API_SERVICE_CHECK = false;
+	private static final boolean IS_ALLOW_ALL_REQUEST = true;
 	
 	@Autowired
 	RootRequestInterceptor(
@@ -58,11 +58,11 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		allowPaths = new LinkedHashSet<>(Arrays.asList("/**"));
-		AdminProperties props = adminHandler.getProperties();
-		skipPaths = new LinkedHashSet<>(Arrays.asList(
-			props.getApi().getRequestPath() + "/**",
-			props.getResource().getRequestPath() + "/**"
-		));
+		skipPaths = new LinkedHashSet<>();
+		skipPaths.add(adminHandler.getApiPath() + "/**");
+		if (adminHandler.isWebEnabled()) {
+			skipPaths.add(adminHandler.getWebPath() + "/**");
+		}
 	}
 	
 	@Override
@@ -81,28 +81,9 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 			exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
 			return null;
 		}
-		if (handler instanceof HandlerMethod hm) {
+		if (ObjectHelper.isInstance(HandlerMethod.class, handler)) {
 			try {
-				boolean isPublic = FrameworkUtil.isPublic(hm);
-				ApiAccess apiAccess = null;
-				if (isApiSerciveCheck) {
-					apiAccess = apiService.getApiAccess(exchange.getRequest(), isPublic);
-					if (apiAccess == null) {
-						apiAccess = new ApiAccess();
-						apiAccess.setApiRole(AppConstants.Default.API_ROLE);
-					}
-					if (!isAllowAllRequest) {
-						if (!isPublic) {
-							boolean allowed = apiService.isApiRequestAllowed(apiAccess, hm);
-							if (!allowed) {
-								throw ResultRuntimeException.of(Result.error("REQ-00", "Request is not allowed"));
-							}
-						}
-					}
-				} else {
-					apiAccess = new ApiAccess();
-					apiAccess.setApiRole(AppConstants.Default.API_ROLE);
-				}
+				ApiAccess apiAccess = getApiAccess(exchange, (HandlerMethod) handler);
 				String auditor = "";
 				if (Boolean.TRUE.equals(apiAccess.getIsConsumer())) {
 					auditor += "CONSUMER::" + apiAccess.getConsumerId();
@@ -115,11 +96,35 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 				AuditInfo.context().setAuditor(auditor);
 				RequestContext.currentContext().setAttribute(ApiAccess.CONTEXT, apiAccess);
 			} catch (Exception e) {
-				Result result = FrameworkUtil.getErrorAsResult(e);
-				return WebFluxUtil.sendToClient(dataMapper, exchange, result);
+				Result result = FrameworkHelper.getErrorAsResult(e);
+				return WebFluxHelper.sendToClient(dataMapper, exchange, result);
 			}
 		}
 		return null;
+	}
+	
+	private ApiAccess getApiAccess(ServerWebExchange exchange, HandlerMethod handlerMethod) {
+		boolean isPublic = FrameworkHelper.isPublic(handlerMethod);
+		ApiAccess apiAccess;
+		if (IS_API_SERVICE_CHECK) {
+			apiAccess = apiService.getApiAccess(exchange.getRequest(), isPublic);
+			if (apiAccess == null) {
+				apiAccess = new ApiAccess();
+				apiAccess.setApiRole(AppConstants.Default.API_ROLE);
+			}
+			if (!IS_ALLOW_ALL_REQUEST) {
+				if (!isPublic) {
+					boolean allowed = apiService.isApiRequestAllowed(apiAccess, handlerMethod);
+					if (!allowed) {
+						throw ResultRuntimeException.of(Result.error("REQ-00", "Request is not allowed"));
+					}
+				} else { /**/ }
+			}
+		} else {
+			apiAccess = new ApiAccess();
+			apiAccess.setApiRole(AppConstants.Default.API_ROLE);
+		}
+		return apiAccess;
 	}
 
 }

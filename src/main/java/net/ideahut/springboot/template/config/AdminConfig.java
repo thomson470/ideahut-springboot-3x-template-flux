@@ -38,14 +38,21 @@ class AdminConfig {
 	) {
 		AppProperties.Admin admin = appProperties.getAdmin();
 		return new AdminHandlerImpl()
-		.setConfigFile(admin.getConfigFile())
+		.setAfterReload(handler -> AdminConfigHelper.afterReloadAdminResource(handler, applicationContext, ""))
+		.setApiPath(admin.getApiPath())
+		//.setCheckTokenCentral(null)
+		.setConfigurationFile(admin.getConfigurationFile())
 		.setDataMapper(dataMapper)
 		.setGridAdditionals(GridSupport.getAdditionals())
 		.setGridOptions(GridSupport.getOptions())
-		.setProperties(admin)
+		//.setMessageHandler(null)
+		//.setProperties(null)
 		.setRedisTemplate(redisTemplate)
 		.setRestHandler(restHandler)
-		.setAfterReload(properties -> AdminConfigHelper.afterReloadAdminResource(applicationContext, properties, appProperties.getApi().getName()));
+		//.setSyncToCentral(null)
+		.setWebEnabled(admin.getWebEnabled())
+		.setWebLocation(admin.getWebLocation())
+		.setWebPath(admin.getWebPath());
 	}
 	
 	@Bean(name = AppConstants.Bean.Credential.ADMIN)
@@ -57,10 +64,14 @@ class AdminConfig {
 	) {
 		AppProperties.Admin admin = appProperties.getAdmin();
 		return new RedisMemoryCredential()
-		.setConfigFile(admin.getCredentialFile())
+		.setCredentialFile(admin.getCredentialFile())
 		.setDataMapper(dataMapper)
+		//.setExpiry(null)
+		//.setPasswordType(null)
 		.setRedisPrefix("ADMIN-CREDENTIAL")
-		.setRedisTemplate(redisTemplate);
+		.setRedisTemplate(redisTemplate)
+		//.setUsers(null)
+		;
 	}
 	
 	
@@ -72,22 +83,24 @@ class AdminConfig {
 		SecurityCredential credential
 	) {
 		return new WebFluxAdminSecurity()
+		.setAdminHandler(adminHandler)
 		.setCredential(credential)
 		.setDataMapper(dataMapper)
 		//.setEnableRemoteHost(true)
 		//.setEnableUserAgent(true)
-		.setProperties(adminHandler.getProperties());
+		//.setProperties(adminHandler.getProperties())
+		;
 	}
 	
 	/*
 	@Bean(name = AppConstants.Bean.Security.ADMIN)
 	BasicAuthSecurity adminSecurity(
 		@Qualifier(AppConstants.Bean.Credential.ADMIN) SecurityCredential credential
-	) {
+	) {//-
 		return new BasicAuthSecurity()
 		.setCredential(credential)
-		.setRealm("Admin");
-	}
+		.setRealm("Admin");//-
+	}//-
 	*/
 	
 }

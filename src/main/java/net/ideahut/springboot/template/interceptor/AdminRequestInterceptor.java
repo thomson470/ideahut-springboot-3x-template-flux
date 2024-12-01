@@ -1,6 +1,5 @@
 package net.ideahut.springboot.template.interceptor;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,10 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ServerWebExchange;
 
 import net.ideahut.springboot.admin.AdminHandler;
-import net.ideahut.springboot.admin.AdminProperties;
 import net.ideahut.springboot.admin.WebFluxAdminSecurity;
 import net.ideahut.springboot.audit.AuditInfo;
+import net.ideahut.springboot.helper.ObjectHelper;
+import net.ideahut.springboot.helper.WebFluxHelper;
 import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.object.MapStringObject;
 import net.ideahut.springboot.security.SecurityCredential;
@@ -28,7 +28,6 @@ import net.ideahut.springboot.security.SecurityUser;
 import net.ideahut.springboot.security.WebFluxSecurityAuthorization;
 import net.ideahut.springboot.template.AppConstants;
 import net.ideahut.springboot.template.Application;
-import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -54,11 +53,11 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		AdminProperties props = adminHandler.getProperties();
-		allowPaths = new LinkedHashSet<>(Arrays.asList(
-			props.getApi().getRequestPath() + "/**",
-			props.getResource().getRequestPath() + "/**"		
-		));
+		allowPaths = new LinkedHashSet<>();
+		allowPaths.add(adminHandler.getApiPath() + "/**");
+		if (adminHandler.isWebEnabled()) {
+			allowPaths.add(adminHandler.getWebPath() + "/**");
+		}
 		skipPaths = new LinkedHashSet<>();
 	}
 	
@@ -85,7 +84,7 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 		if (handler == null) {
 			ServerHttpRequest request = exchange.getRequest();
 			String path = request.getPath().pathWithinApplication().value();
-			Map<String, List<String>> parameters = WebFluxUtil.getRequestParameters(request);
+			Map<String, List<String>> parameters = WebFluxHelper.getRequestParameters(request);
 			String redirect = adminHandler.getRedirect(adminCredential, path, parameters, null);
 			if (redirect != null) {
 				ServerHttpResponse response = exchange.getResponse();
@@ -93,8 +92,10 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 				response.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
 				return Mono.empty();
 			}
-		} else if (handler instanceof HandlerMethod) {
-			String key = adminSecurity instanceof WebFluxAdminSecurity wfas ? wfas.getHeaderKey() : HttpHeaders.AUTHORIZATION;
+		} else if (ObjectHelper.isInstance(HandlerMethod.class, handler)) {
+			String key = 
+				ObjectHelper.isInstance(WebFluxAdminSecurity.class, adminSecurity) ? 
+				((WebFluxAdminSecurity) adminSecurity).getHeaderKey() : HttpHeaders.AUTHORIZATION;
 			SecurityUser user = adminCredential.getSecurityUser(
 				new MapStringObject().setValue(
 					SecurityUser.Parameter.AUTHORIZATION, 

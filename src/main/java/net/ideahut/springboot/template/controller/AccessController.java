@@ -1,5 +1,6 @@
 package net.ideahut.springboot.template.controller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -45,17 +46,13 @@ class AccessController {
 	}
 	
 	@RequestMapping(value = "/info", method = {RequestMethod.GET, RequestMethod.POST})
-	ApiAccess info(
-		ServerHttpRequest request
-	) {
+	ApiAccess info(ServerHttpRequest request) {
 		return accessService.info(request, null);
 	}
 	
 	@Public
 	@RequestMapping(value = "/token", method = {RequestMethod.GET, RequestMethod.POST})
-	String token(
-		ServerHttpRequest request
-	) {
+	String token(ServerHttpRequest request) {
 		return accessService.token(request);
 	}
 	

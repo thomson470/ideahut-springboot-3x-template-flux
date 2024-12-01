@@ -19,8 +19,10 @@ import net.ideahut.springboot.crud.CrudAction;
 import net.ideahut.springboot.crud.CrudHandler;
 import net.ideahut.springboot.crud.CrudPermission;
 import net.ideahut.springboot.crud.WebFluxCrudController;
+import net.ideahut.springboot.helper.ObjectHelper;
+import net.ideahut.springboot.helper.WebFluxHelper;
+import net.ideahut.springboot.object.Page;
 import net.ideahut.springboot.object.Result;
-import net.ideahut.springboot.util.WebFluxUtil;
 import reactor.core.publisher.Mono;
 
 @Public
@@ -75,7 +77,7 @@ class CrudController extends WebFluxCrudController {
 		return DataBufferUtils
 		.join(request.getBody())
 		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
+			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
 			Result result = super.body(CrudAction.valueOf(action.toUpperCase()), data);
 			return Mono.just(result);
 		});
@@ -134,7 +136,10 @@ class CrudController extends WebFluxCrudController {
 		@RequestParam(value = "fields", required = false) String fields,
 		@RequestParam(value = "loads", required = false) String loads		
 	) {
-		return super.collection(manager, name, index, size, count, filters, orders, fields, loads);
+		String scount = ObjectHelper.useOrDefault(count, "").trim().toLowerCase();
+		Boolean pcount = "1".equals(scount) || "true".equals(scount);
+		Page page = Page.of(index, size, pcount);
+		return super.collection(manager, name, page, filters, orders, fields, loads);
 	}
 	
 	
@@ -152,7 +157,7 @@ class CrudController extends WebFluxCrudController {
 		return DataBufferUtils
 		.join(request.getBody())
 		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
+			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
 			Result result = super.create(manager, name, value, data);
 			return Mono.just(result);
 		});
@@ -174,7 +179,7 @@ class CrudController extends WebFluxCrudController {
 		return DataBufferUtils
 		.join(request.getBody())
 		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxUtil.getDataBufferAsBytes(dataBuffer);
+			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
 			Result result = super.update(manager, name, id, value, data);
 			return Mono.just(result);
 		});
