@@ -21,6 +21,7 @@ import net.ideahut.springboot.annotation.Public;
 import net.ideahut.springboot.api.ApiConsumerRequest;
 import net.ideahut.springboot.api.ApiConsumerService;
 import net.ideahut.springboot.helper.ErrorHelper;
+import net.ideahut.springboot.helper.ObjectHelper;
 import net.ideahut.springboot.helper.WebFluxHelper;
 import net.ideahut.springboot.object.Result;
 import net.ideahut.springboot.rest.RestMethod;
@@ -65,8 +66,8 @@ class DevController {
 		@RequestParam("apiName") String apiName
 	) {
 		String token = apiConsumerService.token(apiName);
-		if (token != null && !token.isEmpty() && sysParamHandler instanceof SysParamUpdater sysParamUpdater) {
-			sysParamUpdater.updateSysParam(
+		if (token != null && !token.isEmpty() && ObjectHelper.isInstance(SysParamUpdater.class, sysParamHandler)) {
+			((SysParamUpdater) sysParamHandler).updateSysParam(
 				SysParamDto.create()
 				.setSysCode(SYSTEM_CODE)
 				.setParamCode(apiName)
