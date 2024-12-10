@@ -167,8 +167,10 @@ app:
       webPath: "/_/web"
       webLocation: "file:{user.dir}/extras/admin/web/"
       webEnabled: true
+      useBasicAuth: false
       
    api:
+      name: "TEMPLATE-FLUX"
       enable:
          consumer: true
          crud: true
@@ -201,6 +203,10 @@ app:
       threadNamePrefix: "WEB-ASYNC"
       corePoolSize: 10
       maxPoolSize: 100
+   
+   crud:
+      enableApiService: true
+      enablePermission: true
       
    handler:
       enableReport: true
