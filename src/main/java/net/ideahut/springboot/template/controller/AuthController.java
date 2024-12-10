@@ -13,47 +13,53 @@ import org.springframework.web.bind.annotation.RestController;
 import net.ideahut.springboot.annotation.Public;
 import net.ideahut.springboot.api.ApiAccess;
 import net.ideahut.springboot.api.ApiAuth;
-import net.ideahut.springboot.template.service.AccessService;
+import net.ideahut.springboot.api.ApiRequest;
+import net.ideahut.springboot.api.WebFluxApiService;
+import net.ideahut.springboot.template.service.AuthService;
 
 @ComponentScan
 @RestController
-@RequestMapping("/access")
-class AccessController {
+@RequestMapping("/auth")
+class AuthController {
 	
-	private final AccessService accessService;
+	private final AuthService authService;
+	private final WebFluxApiService apiService;
 	
 	@Autowired
-	AccessController(
-		AccessService accessService
+	AuthController(
+		AuthService authService,
+		WebFluxApiService apiService
 	) {
-		this.accessService = accessService;
+		this.authService = authService;
+		this.apiService = apiService;
 	}
-
+	
 	@Public
 	@PostMapping("/login")
 	ApiAuth login(
-		ServerHttpRequest request,
+		ServerHttpRequest httpRequest,
 		@RequestParam("username") String username,
 		@RequestParam("password") String password
 	) throws Exception {
-		ApiAuth apiAuth = accessService.login(request, username, password);
+		ApiRequest apiRequest = apiService.getApiRequest(httpRequest, true);
+		ApiAuth apiAuth = authService.login(apiRequest, username, password);
 		return apiAuth != null ? apiAuth.setApiAccess(null).setApiKey(null) : null;
 	}
 	
 	@RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
-	ApiAccess logout() {
-		return accessService.logout();
+	ApiAccess logout(
+		ServerHttpRequest httpRequest
+	) {
+		ApiRequest apiRequest = apiService.getApiRequest(httpRequest, true);
+		return authService.logout(apiRequest);
 	}
 	
 	@RequestMapping(value = "/info", method = {RequestMethod.GET, RequestMethod.POST})
-	ApiAccess info(ServerHttpRequest request) {
-		return accessService.info(request, null);
-	}
-	
-	@Public
-	@RequestMapping(value = "/token", method = {RequestMethod.GET, RequestMethod.POST})
-	String token(ServerHttpRequest request) {
-		return accessService.token(request);
+	ApiAccess info(
+		ServerHttpRequest httpRequest	
+	) {
+		ApiRequest apiRequest = apiService.getApiRequest(httpRequest, true);
+		return authService.info(apiRequest);
 	}
 	
 }

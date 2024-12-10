@@ -84,7 +84,7 @@ app:
    # Beberapa database tidak support "... on update (CASCADE/SET_NULL)"
    #
    foreignKey:
-      enableExecution: false
+      enableExecution: true
       dropBeforeCreate: true
       onUpdateAction: true 
       
@@ -119,11 +119,10 @@ app:
    redis:
       common:
          type: 0
-         testOnStartup: true
          standalone:
-            host: 127.0.0.1
-            port: 6378
-            password: "a3213c419771fbd1a05cdde7127e6393ef852db97328b21a45de700e9bbe85db"
+            host: "<HOST>"
+            port: "<PORT>"
+            password: "<PASSWORD>"
             database: 0
             
    cache:
@@ -144,8 +143,8 @@ app:
    mail:
       host: smtp.gmail.com
       port: 587
-      username: "socrates.apps.team@gmail.com"
-      password: "csbyvmyazduwlamw"
+      username: "<USERNAME>"
+      password: "<PASSWORD>"
       properties:
          "mail.smtp.host": "smtp.gmail.com"
          "mail.smtp.ssl.trust": "smtp.gmail.com"
@@ -219,11 +218,6 @@ other:
                   audit_identifier: spring_sample_other
                   audit_bean_name: otherAuditSessionFactory
          audit:
-            datasource:
-               driver-class-name: "com.mysql.cj.jdbc.Driver"
-               jdbc-url: "jdbc:mysql://localhost:3306/springboot_sample_other_audit?createDatabaseIfNotExist=true&autoReconnect=true"
-               username: "root"
-               password: "a3213c419771fbd1a05cdde7127e6393ef852db97328b21a45de700e9bbe85db"  
             jpa:
                properties:
                   hibernate:

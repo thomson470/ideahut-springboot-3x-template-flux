@@ -1,8 +1,8 @@
 package net.ideahut.springboot.template.controller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,6 @@ import net.ideahut.springboot.annotation.Public;
 import net.ideahut.springboot.crud.CrudAction;
 import net.ideahut.springboot.crud.CrudHandler;
 import net.ideahut.springboot.crud.CrudPermission;
-import net.ideahut.springboot.crud.WebFluxCrudController;
 import net.ideahut.springboot.helper.ObjectHelper;
 import net.ideahut.springboot.helper.WebFluxHelper;
 import net.ideahut.springboot.object.Page;
@@ -29,7 +28,7 @@ import reactor.core.publisher.Mono;
 @ComponentScan
 @RestController
 @RequestMapping("/crud")
-class CrudController extends WebFluxCrudController {
+class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	
 	private final CrudHandler handler;
 	private final CrudPermission permission;
@@ -72,13 +71,12 @@ class CrudController extends WebFluxCrudController {
 	@PostMapping(value = "/action/{action}")
 	Mono<Result> action(
 		@PathVariable("action") String action,
-		ServerHttpRequest request
+		ServerHttpRequest httpRequest
 	) throws Exception {
-		return DataBufferUtils
-		.join(request.getBody())
-		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
-			Result result = super.body(CrudAction.valueOf(action.toUpperCase()), data);
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			Result result = super.body(CrudAction.valueOf(action.toUpperCase()), bytes);
 			return Mono.just(result);
 		});
 	}
@@ -99,9 +97,9 @@ class CrudController extends WebFluxCrudController {
 	)
 	Result parameter(
 		@PathVariable("action") String action,
-		ServerHttpRequest request
+		ServerHttpRequest httpRequest
 	) throws Exception {
-		return super.parameter(CrudAction.valueOf(action.toUpperCase()), request);		
+		return super.parameter(CrudAction.valueOf(action.toUpperCase()), httpRequest);		
 	}
 	
 	
@@ -152,13 +150,12 @@ class CrudController extends WebFluxCrudController {
 		@PathVariable("name") String name,
 		@RequestParam(value = "manager", required = false) String manager,
 		@RequestParam(value = "value", required = false) String value,
-		ServerHttpRequest request
+		ServerHttpRequest httpRequest
 	) throws Exception {
-		return DataBufferUtils
-		.join(request.getBody())
-		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
-			Result result = super.create(manager, name, value, data);
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			Result result = super.create(manager, name, value, bytes);
 			return Mono.just(result);
 		});
 	}
@@ -174,13 +171,12 @@ class CrudController extends WebFluxCrudController {
 		@PathVariable("id") String id,
 		@RequestParam(value = "manager", required = false) String manager,
 		@RequestParam(value = "value", required = false) String value,
-		ServerHttpRequest request
+		ServerHttpRequest httpRequest
 	) throws Exception {
-		return DataBufferUtils
-		.join(request.getBody())
-		.flatMap(dataBuffer -> {
-			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
-			Result result = super.update(manager, name, id, value, data);
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			Result result = super.update(manager, name, id, value, bytes);
 			return Mono.just(result);
 		});
 	}

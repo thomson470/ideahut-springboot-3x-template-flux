@@ -41,8 +41,8 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	
 	// set false, agar ApiService tidak melakukan pengecekan (development)
 	// default ApiAccess Role = PUBLIC
-	private static final boolean IS_API_SERVICE_CHECK = false;
-	private static final boolean IS_ALLOW_ALL_REQUEST = true;
+	private static final boolean IS_API_SERVICE_CHECK = true;
+	private static final boolean IS_ALLOW_ALL_REQUEST = false;
 	
 	@Autowired
 	RootRequestInterceptor(
@@ -79,7 +79,7 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	public Mono<Void> preHandle(ServerWebExchange exchange, Object handler) {
 		if (!Application.isReady()) {
 			exchange.getResponse().setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
-			return null;
+			return Mono.empty();
 		}
 		if (ObjectHelper.isInstance(HandlerMethod.class, handler)) {
 			try {
@@ -114,9 +114,9 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 			}
 			if (!IS_ALLOW_ALL_REQUEST) {
 				if (!isPublic) {
-					boolean allowed = apiService.isApiRequestAllowed(apiAccess, handlerMethod);
+					boolean allowed = apiService.isApiAccessAllowed(apiAccess, handlerMethod);
 					if (!allowed) {
-						throw ResultRuntimeException.of(Result.error("REQ-00", "Request is not allowed"));
+						throw ResultRuntimeException.of(Result.error("REQ-00", "Request not allowed"));
 					}
 				} else { /**/ }
 			}

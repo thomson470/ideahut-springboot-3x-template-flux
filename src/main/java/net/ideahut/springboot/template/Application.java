@@ -38,7 +38,7 @@ public class Application implements ApplicationListener<ContextRefreshedEvent> {
 	
 	public static class Package {
 		private Package() {}
-		public static final String LIBRARY		= "net.ideahut.springboot";
+		public static final String LIBRARY		= FrameworkHelper.PACKAGE;
 		public static final String APPLICATION	= "net.ideahut.springboot.template";
 	}
 	

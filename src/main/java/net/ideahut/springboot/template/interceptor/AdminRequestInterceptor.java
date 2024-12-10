@@ -25,7 +25,7 @@ import net.ideahut.springboot.interceptor.WebFluxHandlerInterceptor;
 import net.ideahut.springboot.object.MapStringObject;
 import net.ideahut.springboot.security.SecurityCredential;
 import net.ideahut.springboot.security.SecurityUser;
-import net.ideahut.springboot.security.WebFluxSecurityAuthorization;
+import net.ideahut.springboot.security.WebFluxSecurity;
 import net.ideahut.springboot.template.AppConstants;
 import net.ideahut.springboot.template.Application;
 import reactor.core.publisher.Mono;
@@ -37,14 +37,16 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 	private Set<String> skipPaths;
 
 	private final AdminHandler adminHandler;
-	private final WebFluxSecurityAuthorization adminSecurity;
+	private final WebFluxSecurity adminSecurity;
 	private final SecurityCredential adminCredential;
 	
 	@Autowired
 	AdminRequestInterceptor(
 		AdminHandler adminHandler,
-		@Qualifier(AppConstants.Bean.Security.ADMIN) WebFluxSecurityAuthorization adminSecurity,
-		@Qualifier(AppConstants.Bean.Credential.ADMIN) SecurityCredential adminCredential
+		@Qualifier(AppConstants.Bean.Security.ADMIN) 
+		WebFluxSecurity adminSecurity,
+		@Qualifier(AppConstants.Bean.Credential.ADMIN) 
+		SecurityCredential adminCredential
 	) {
 		this.adminHandler = adminHandler;
 		this.adminSecurity = adminSecurity;

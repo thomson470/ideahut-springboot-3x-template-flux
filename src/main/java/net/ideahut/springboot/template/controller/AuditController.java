@@ -3,7 +3,6 @@ package net.ideahut.springboot.template.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,11 +48,12 @@ class AuditController {
 	
 	@PostMapping(value = "/list")
 	Mono<Result> list(
-		ServerHttpRequest request
+		ServerHttpRequest httpRequest
 	) throws Exception {
-		return DataBufferUtils.join(request.getBody()).flatMap(dataBuffer -> {
-			byte[] data = WebFluxHelper.getDataBufferAsBytes(dataBuffer);
-			AuditRequest auditRequest = auditHandler.getRequest(data);
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			AuditRequest auditRequest = auditHandler.getRequest(bytes);
 			TrxManagerInfo trxManagerInfo = FrameworkHelper.getTrxManagerInfo(entityTrxManager, auditRequest.getManager());
 			if (trxManagerInfo == null) {
 				throw new ResultRuntimeException(Result.error("AUDIT-01", "Unknown manager: " + auditRequest.getManager()));
