@@ -106,8 +106,6 @@ class ReportController implements InitializingBean {
 			}
 		});
 		return ResponseEntity.ok()
-        //.header(HttpHeaders.CONTENT_DISPOSITION,  "attachment; filename=" + System.nanoTime() + "." + type.name().toLowerCase())
-        //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
 		.contentType(MediaType.valueOf(type.getContentType()))
         .body(mono.flatMap(x -> {
         	Resource resource = new InputStreamResource(x);
