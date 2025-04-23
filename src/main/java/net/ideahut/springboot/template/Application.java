@@ -1,6 +1,8 @@
 package net.ideahut.springboot.template;
 
 import java.io.Closeable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -73,7 +75,8 @@ public class Application implements ApplicationListener<ContextRefreshedEvent> {
 		
 		AppProperties appProperties = applicationContext.getBean(AppProperties.class);
 		TaskHandler taskHandler = applicationContext.getBean(AppConstants.Bean.Task.COMMON, TaskHandler.class);
-		taskHandler.execute(() -> {
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		executorService.execute(() -> {
 			long time = System.currentTimeMillis();
 			try {
 				BeanConfigure.runBeanConfigure(
@@ -86,6 +89,7 @@ public class Application implements ApplicationListener<ContextRefreshedEvent> {
 					AuditHandler.class // <-- tidak async karena akan dibaca oleh AdminHandler
 				);
 			} catch (Exception e) {
+				executorService.shutdownNow();
 				throw ErrorHelper.exception(e);
 			}
 			setReady(true);
@@ -109,6 +113,7 @@ public class Application implements ApplicationListener<ContextRefreshedEvent> {
 				int port = FrameworkHelper.getPort(applicationContext);
 				log.info("Application '{}' is ready to serve on port {}", applicationContext.getId(), port);
 			}
+			executorService.shutdownNow();
 		});
 	}
 	
