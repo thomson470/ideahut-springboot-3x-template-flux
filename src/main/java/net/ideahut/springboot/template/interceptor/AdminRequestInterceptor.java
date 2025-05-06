@@ -105,7 +105,7 @@ public class AdminRequestInterceptor implements WebFluxHandlerInterceptor, Initi
 				)
 			);
 			if (user != null) {
-				AuditInfo.context().setAuditor("ADMIN::" + user.getUsername());
+				AuditInfo.fromContext().setAuditor("ADMIN::" + user.getUsername());
 			}
 		}
 		return null;

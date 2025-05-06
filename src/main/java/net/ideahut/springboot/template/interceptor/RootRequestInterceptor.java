@@ -94,8 +94,7 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 				if (apiUser != null) {
 					auditor += "USER::" + apiUser.getId() + "::" + apiUser.getUsername();
 				}
-				AuditInfo.context().setAuditor(auditor);
-				RequestContext.currentContext().setAttribute(ApiAccess.CONTEXT, apiAccess);
+				AuditInfo.fromContext().setAuditor(auditor);
 			} catch (Exception e) {
 				Result result = FrameworkHelper.getErrorAsResult(e);
 				return WebFluxHelper.sendToClient(dataMapper, exchange, result);
@@ -106,9 +105,9 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 	
 	private ApiAccess getApiAccess(ServerWebExchange exchange, HandlerMethod handlerMethod) {
 		boolean isPublic = FrameworkHelper.isPublic(handlerMethod);
+		ApiRequest apiRequest = apiService.getApiRequest(exchange.getRequest(), isPublic);
 		ApiAccess apiAccess;
 		if (IS_API_SERVICE_CHECK) {
-			ApiRequest apiRequest = apiService.getApiRequest(exchange.getRequest(), isPublic);
 			apiAccess = apiService.getApiAccess(apiRequest);
 			if (apiAccess == null) {
 				apiAccess = new ApiAccess();
@@ -126,6 +125,9 @@ public class RootRequestInterceptor implements WebFluxHandlerInterceptor, Initia
 			apiAccess = new ApiAccess();
 			apiAccess.setApiRole(AppConstants.Default.API_ROLE);
 		}
+		RequestContext.currentContext()
+		.setAttribute(ApiRequest.class, apiRequest)
+		.setAttribute(ApiAccess.class, apiAccess);
 		return apiAccess;
 	}
 

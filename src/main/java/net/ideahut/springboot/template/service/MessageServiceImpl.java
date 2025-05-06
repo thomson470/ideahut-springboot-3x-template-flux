@@ -199,7 +199,7 @@ class MessageServiceImpl implements MessageService, BeanReload, BeanConfigure<Me
 		if (language != null) {
 			return language;
 		}
-		language = RequestContext.currentContext().getAttribute(MessageHandler.Attribute.LANGUAGE, "");
+		language = RequestContext.currentContext().getAttribute(MessageHandler.Attribute.LANGUAGE);
 		if (!isValidLanguage(language)) {
 			language = DEFAULT_LANGUAGE;
 		}
@@ -208,11 +208,15 @@ class MessageServiceImpl implements MessageService, BeanReload, BeanConfigure<Me
 	}
 	
 	private boolean isValidLanguage(String language) {
-		Option option = getActiveLanguages().stream()
-		.filter(o -> language.equals(o.getValue()))
-		.findAny()
-		.orElse(null);
-		return option != null;
+		if (language != null && !language.isEmpty()) {
+			Option option = getActiveLanguages()
+			.stream()
+			.filter(o -> language.equals(o.getValue()))
+			.findAny()
+			.orElse(null);
+			return option != null;
+		}
+		return false;
 	}
 	
 	private Map<String, byte[]> getResources(String type) throws Exception {
