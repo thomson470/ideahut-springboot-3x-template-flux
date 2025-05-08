@@ -31,23 +31,32 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/crud")
 class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	
-	private final CrudHandler handler;
-	private final CrudPermission permission;
+	private final CrudHandler crudHandler;
+	private final CrudPermission crudPermission;
 	
 	@Autowired
 	CrudController(
-		CrudHandler handler, 
-		CrudPermission permission
+		CrudHandler crudHandler, 
+		CrudPermission crudPermission
 	) {
-		this.handler = handler;
-		this.permission = permission;
+		this.crudHandler = crudHandler;
+		this.crudPermission = crudPermission;
 	}
 	
 	@Override
-	protected CrudHandler handler() {
-		return handler;
+	protected CrudHandler crudHandler() {
+		return crudHandler;
 	}
-	
+
+	/*
+	 * Crud Permission bisa di level Handler ataupun di lever Controller.
+	 * Untuk di level Handler akan berlaku disetiap penggunaan CrudHandler
+	 * Untuk di level Controller hanya akan berlaku di setiap pemanggilan endpoint Crud
+	 */
+	@Override
+	protected CrudPermission crudPermission() {
+		return crudPermission;
+	}
 	
 	
 	/*
@@ -62,8 +71,7 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	@GetMapping(value = "/info/constant")
 	Result infoConstant() {
 		return super.constant();
-	}	
-	
+	}
 	
 	
 	/*
@@ -81,7 +89,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 			return Mono.just(result);
 		});
 	}
-	
 	
 	
 	/*
@@ -104,7 +111,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	}
 	
 	
-	
 	/*
 	 * OBJECT (CrudAction.SINGLE)
 	 */
@@ -120,7 +126,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		.setId(id);
 		return super.object(input);
 	}
-	
 	
 	
 	/*
@@ -154,7 +159,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	}
 	
 	
-	
 	/*
 	 * CREATE
 	 */
@@ -177,7 +181,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 			return Mono.just(result);
 		});
 	}
-	
 	
 	
 	/*
@@ -206,8 +209,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	}
 	
 	
-	
-	
 	/*
 	 * DELETE 
 	 */
@@ -222,18 +223,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		.setName(name)
 		.setId(id);
 		return super.delete(input);
-	}
-
-	
-	
-	/*
-	 * Crud Permission bisa di level Handler ataupun di lever Controller.
-	 * Untuk di level Handler akan berlaku disetiap penggunaan CrudHandler
-	 * Untuk di level Controller hanya akan berlaku di setiap pemanggilan endpoint Crud
-	 */
-	@Override
-	protected CrudPermission permission() {
-		return permission;
 	}
 	
 }
