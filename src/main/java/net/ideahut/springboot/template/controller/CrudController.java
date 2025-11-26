@@ -1,6 +1,9 @@
 package net.ideahut.springboot.template.controller;
 
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -23,6 +26,7 @@ import net.ideahut.springboot.helper.StringHelper;
 import net.ideahut.springboot.helper.WebFluxHelper;
 import net.ideahut.springboot.object.Page;
 import net.ideahut.springboot.object.Result;
+import net.ideahut.springboot.task.TaskHandler;
 import reactor.core.publisher.Mono;
 
 @Public
@@ -47,6 +51,11 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	protected CrudHandler crudHandler() {
 		return crudHandler;
 	}
+	
+	@Override
+	protected TaskHandler taskHandler() {
+		return null;
+	}
 
 	/*
 	 * Crud Permission bisa di level Handler ataupun di lever Controller.
@@ -57,7 +66,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 	protected CrudPermission crudPermission() {
 		return crudPermission;
 	}
-	
 	
 	/*
 	 * INFO
@@ -73,6 +81,35 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		return super.constant();
 	}
 	
+	/*
+	 * BULK LIST
+	 */
+	@PostMapping(value = "/bulk/list")
+	Mono<List<Result>> bulkList(
+		ServerHttpRequest httpRequest
+	) {
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			List<Result> result = super.bulkList(bytes);
+			return Mono.just(result);
+		});
+	}
+	
+	/*
+	 * BULK MAP
+	 */
+	@PostMapping(value = "/bulk/map")
+	Mono<Map<String, Result>> bulkMap(
+		ServerHttpRequest httpRequest
+	) {
+		return WebFluxHelper
+		.onRequestBody(httpRequest)
+		.flatMap(bytes -> {
+			Map<String, Result> result = super.bulkMap(bytes);
+			return Mono.just(result);
+		});
+	}
 	
 	/*
 	 * BODY ACTION
@@ -89,7 +126,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 			return Mono.just(result);
 		});
 	}
-	
 	
 	/*
 	 * PARAMETER
@@ -110,7 +146,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		return super.parameter(CrudAction.valueOf(action.toUpperCase()), httpRequest);		
 	}
 	
-	
 	/*
 	 * OBJECT (CrudAction.SINGLE)
 	 */
@@ -126,7 +161,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		.setId(id);
 		return super.object(input);
 	}
-	
 	
 	/*
 	 * COLLECTION (CrudAction.PAGE)
@@ -158,7 +192,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		return super.collection(input);
 	}
 	
-	
 	/*
 	 * CREATE
 	 */
@@ -181,7 +214,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 			return Mono.just(result);
 		});
 	}
-	
 	
 	/*
 	 * UPDATE
@@ -208,7 +240,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		});
 	}
 	
-	
 	/*
 	 * DELETE 
 	 */
@@ -223,6 +254,6 @@ class CrudController extends net.ideahut.springboot.crud.WebFluxCrudController {
 		.setName(name)
 		.setId(id);
 		return super.delete(input);
-	}
-	
+	}	
+		
 }
